@@ -1,22 +1,22 @@
 
 import Card from "../components/Card"
 import { MapPinIcon } from "@heroicons/react/24/outline"
-import Sunny from "../assets/sunny.png"
-import Thunder from "../assets/thunder.png"
-import Cloudy from "../assets/cloudy.png"
+import SunnyImg from "../assets/sunny.png"
+import ThunderImg from "../assets/thunder.png"
+import CloudyImg from "../assets/cloudy.png"
 import  {getCurrentTime12Hour, dateInWords} from "./time"
 import humidityIcon from "../assets/icons/humidity.png"
 import weatherIcon from "../assets/icons/weather.png"
 import clearskyIcon from "../assets/icons/clear-sky.png"
 import searchIcon from "../assets/icons/search.png"
-import { useState } from "react"
+import { useState , useEffect} from "react"
 import toTitleCase from "./switchCase"
 
 
 
 const Header = () => {
-  const [cityName,setCityName] = useState("London");
-  const [countryCode, setCountryCode] = useState("GB");
+  const [cityName,setCityName] = useState("Lagos");
+  const [countryCode, setCountryCode] = useState("NG");
   const [weatherType, setWeatherType] = useState("Sunny");
   const [degree, setDegree] = useState(0);
   const [feelsLike, setFeelsLike] = useState("Rain");
@@ -24,6 +24,9 @@ const Header = () => {
   const [tempmax, setTempMax] = useState(100);
   const [humidity, setHumidity] = useState(30);
   const [anError, setAnError] = useState(false);
+  const [weatherImg, setWeatherImg] = useState(SunnyImg);
+
+
 
 
   async function getWeather (){
@@ -44,7 +47,7 @@ const Header = () => {
                     return response.json();
                   })
                   .then(data =>{
-                    console.log(data);
+                    setAnError(false);
                     setCityName(data.name);
                     setCountryCode(data.sys.country);
                     setWeatherType(toTitleCase(data.weather[0].description));
@@ -53,6 +56,16 @@ const Header = () => {
                     setTempMin(data.main.temp_min);
                     setTempMax(data.main.temp_max);
                     setHumidity(data.main.humidity);
+
+                    if(degree > 30){
+                      setWeatherImg(SunnyImg);
+                    }
+                    else if (degree > 20 && degree < 30){
+                      setWeatherImg(ThunderImg);
+                    }
+                    else if(degree < 20){
+                      setWeatherImg(CloudyImg);
+                    }
                     
                   })
                   .catch((err)=>{
@@ -74,6 +87,65 @@ const Header = () => {
      
 }
 
+async function HomepageWeather (){
+   
+  try{
+            var city = "Lagos";
+            if(city != null || city != ""){  
+              const apiKey = '6b50a09b7d3f3dec5784cdb5e9b3aadd'; // Replace with your actual API key
+              const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+              
+              await fetch(url)
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                  }
+                  return response.json();
+                })
+                .then(data =>{
+                  setAnError(false);
+                  setCityName(data.name);
+                  setCountryCode(data.sys.country);
+                  setWeatherType(toTitleCase(data.weather[0].description));
+                  setDegree(data.main.temp);
+                  setFeelsLike(data.main.feels_like);
+                  setTempMin(data.main.temp_min);
+                  setTempMax(data.main.temp_max);
+                  setHumidity(data.main.humidity);
+                  
+                  if(degree > 30){
+                    setWeatherImg(SunnyImg);
+                  }
+                  else if (degree > 20 && degree < 30){
+                    setWeatherImg(ThunderImg);
+                  }
+                  else if(degree < 20){
+                    setWeatherImg(CloudyImg);
+                  }
+                })
+                .catch((err)=>{
+                  setAnError(true);
+                  console.log(err);
+                  
+                });
+              
+            }
+            else{
+              alert("Name cannot be empty");
+            }
+  }
+            
+catch(err){
+  console.log(err);
+  
+}
+   
+}
+
+
+useEffect(() => {
+HomepageWeather();
+}, [])
 
 
   return (
@@ -100,7 +172,7 @@ const Header = () => {
        <div>
         <div className="weathersection">
            <div className="image">
-            <img className="weatherimage" src={Sunny} alt="" />
+            <img className="weatherimage" src={weatherImg} alt="" />
         </div>
         <div className="weather">
             <h1 className="text-5xl font-bold">{degree} &deg;</h1>
