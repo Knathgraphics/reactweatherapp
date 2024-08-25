@@ -32,7 +32,7 @@ const Header = () => {
   async function getWeather (){
    
     try{
-              var city = document.getElementById("searchinput").value;
+              var city = (document.getElementById("searchinput").value).trim();
               if(city != null || city != ""){
                 console.log(city);
                 
